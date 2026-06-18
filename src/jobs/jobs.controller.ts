@@ -1,4 +1,16 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Delete, Get, Post } from '@nestjs/common';
 
 @Controller('jobs')
-export class JobsController {}
+export class JobsController {
+    @Post()
+    createJob() {}
+
+    @Get()
+    getJobsList() {}
+
+    @Get(':id')
+    getJobDetails() {}
+
+    @Delete(':id')
+    cancelJob() {}
+}
