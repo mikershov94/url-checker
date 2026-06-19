@@ -1,19 +1,23 @@
 import { HttpStatus } from '@nestjs/common';
 import { JobStatus } from '../consts/job-status.const';
+import { UrlCheckStatus } from '../consts/url-check-status.const';
 
-export interface JobDetails {
+export type JobId = string;
+
+export interface UrlCheck {
     url: string;
-    httpCode: HttpStatus;
-    status: JobStatus;
-    startedAt: Date;
-    endedAt: Date;
-    duration: number;
+    status: UrlCheckStatus;
+    httpCode?: HttpStatus;
+    errorMessage?: string;
+    startedAt?: Date;
+    endedAt?: Date;
+    duration?: number;
 }
 
 export interface Job {
-    id: string;
+    id: JobId;
     status: JobStatus;
     createdAt: Date;
     updatedAt: Date;
-    details: JobDetails[];
+    urlChecks: UrlCheck[];
 }
