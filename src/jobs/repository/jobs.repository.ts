@@ -10,7 +10,13 @@ export class JobsRepository {
     }
 
     public create() {}
-    public read() {}
+    public findById(id?: string): Job | undefined {
+        if (!id) {
+            return undefined;
+        }
+
+        return this.store.get(id);
+    }
     public update() {}
     public delete() {}
 }
