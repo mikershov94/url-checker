@@ -18,6 +18,7 @@ describe('JobsController', () => {
             createJob: jest.fn(),
             getJobsList: jest.fn(),
             getUrlChecks: jest.fn(),
+            cancelJob: jest.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -107,5 +108,13 @@ describe('JobsController', () => {
 
         expect(service.getUrlChecks).toHaveBeenCalledWith(jobId);
         expect(result).toEqual(expectedResponse);
+    });
+
+    it('cancelJob должен вызывать соответствующий метод сервиса с переданным jobId', () => {
+        const jobId: JobId = 'job-1';
+
+        controller.cancelJob(jobId);
+
+        expect(service.cancelJob).toHaveBeenCalledWith(jobId);
     });
 });

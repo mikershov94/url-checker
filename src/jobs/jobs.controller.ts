@@ -29,5 +29,7 @@ export class JobsController {
     }
 
     @Delete(':id')
-    cancelJob() {}
+    cancelJob(@Param('id') jobId: string): void {
+        this.service.cancelJob(jobId);
+    }
 }

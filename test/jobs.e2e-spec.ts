@@ -125,7 +125,7 @@ describe('JobsController (e2e)', () => {
 
         await request(server).delete(`/jobs/${jobId}`).expect(200);
 
-        const { body: getBody } = await request(server).get(`/jobs/${jobId}`).expect(200);
+        const { body: getBody } = await request(server).get('/jobs').expect(200);
 
         const jobList = getBody as GetJobsResponseDto[];
         const job = jobList.find((job) => job.id === jobId)!;
