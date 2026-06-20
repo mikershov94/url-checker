@@ -4,6 +4,7 @@ import { JobsRepository } from './repository/jobs.repository';
 import { Job, JobId, UrlCheck } from './entities/job.entity';
 import { JobStatus } from './consts/job-status.const';
 import { UrlCheckStatus } from './consts/url-check-status.const';
+import { JobInfo } from './interfaces/job-info.interface';
 
 describe('JobsService', () => {
     let service: JobsService;
@@ -49,30 +50,57 @@ describe('JobsService', () => {
     it('getJobList должен вызывать метод репозитория и возврвщать список', () => {
         const now = new Date();
 
-        const jobs: Job[] = [
+        const repoFixtures: Job[] = [
             {
                 id: 'job-1',
                 status: JobStatus.pending,
                 createdAt: now,
                 updatedAt: now,
-                urlChecks: [],
+                urlChecks: [
+                    { url: 'https://example1.com', status: UrlCheckStatus.pending },
+                    { url: 'https://example2.com', status: UrlCheckStatus.error },
+                ],
             },
             {
                 id: 'job-2',
                 status: JobStatus.completed,
                 createdAt: now,
                 updatedAt: now,
-                urlChecks: [],
+                urlChecks: [
+                    { url: 'https://example3.com', status: UrlCheckStatus.success },
+                    { url: 'https://example4.com', status: UrlCheckStatus.success },
+                    { url: 'https://example5.com', status: UrlCheckStatus.error },
+                ],
             },
         ];
 
-        repository.getList.mockReturnValue(jobs);
+        const serviceFixtures: JobInfo[] = [
+            {
+                id: 'job-1',
+                status: JobStatus.pending,
+                createdAt: now,
+                updatedAt: now,
+                urlCount: 2,
+                successCount: 0,
+                errorCount: 1,
+            },
+            {
+                id: 'job-2',
+                status: JobStatus.completed,
+                createdAt: now,
+                updatedAt: now,
+                urlCount: 3,
+                successCount: 2,
+                errorCount: 1,
+            },
+        ];
 
-        const result = service.getJobList();
+        repository.getList.mockReturnValue(repoFixtures);
+
+        const result = service.getJobsList();
 
         expect(repository.getList).toHaveBeenCalled();
-        expect(result).toBe(jobs);
-        expect(result).toHaveLength(2);
+        expect(result).toEqual(serviceFixtures);
     });
 
     it('getUrlChecks должен вызывать метод репозитория и возвращать список', () => {
