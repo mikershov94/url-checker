@@ -43,10 +43,11 @@ export default tseslint.config(
         },
     },
     {
-        files: ['**/*.dto.ts', '**/*.e2e-spec.ts'],
+        files: ['**/*.dto.ts', '**/*.e2e-spec.ts', '**/*.spec.ts'],
         rules: {
             '@typescript-eslint/no-unsafe-call': 'off',
             '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/unbound-method': 'off',
         },
     },
 );
