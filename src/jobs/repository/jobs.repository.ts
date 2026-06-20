@@ -41,6 +41,14 @@ export class JobsRepository {
 
         return this.store.get(id);
     }
-    public update() {}
+
+    public getJobs(): Job[] {
+        return [...this.store.values()];
+    }
+
+    public getUrlChecksByJobId(id: string): UrlCheck[] {
+        return this.findById(id)!.urlChecks;
+    }
+
     public delete() {}
 }
