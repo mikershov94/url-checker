@@ -4,6 +4,7 @@ import { Job, JobId, UrlCheck } from '../entities/job.entity';
 import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckStatus } from '../consts/url-check-status.const';
 import { UrlCheckStats } from '../interfaces/url-check-stats.interface';
+import { RepositoryErrors } from '../consts/repository-errors.const';
 
 @Injectable()
 export class JobsRepository {
@@ -64,18 +65,21 @@ export class JobsRepository {
         });
     }
 
-    public markInProgress(id: JobId): void {
+    public markInProgress(id: JobId): Date {
         const job = this.store.get(id);
         if (!job) {
-            return;
+            throw new Error(RepositoryErrors.JOB_NOT_FOUND);
         }
 
+        const now = new Date();
         this.store.set(id, {
             ...job,
             status: JobStatus.inProgress,
             updatedAt: new Date(),
-            urlChecks: job.urlChecks.map((check) => ({ ...check, startedAt: new Date() })),
+            urlChecks: job.urlChecks.map((check) => ({ ...check, startedAt: now })),
         });
+
+        return now;
     }
 
     public markUrlCheckSuccess(id: JobId, url: string, stats: UrlCheckStats): void {

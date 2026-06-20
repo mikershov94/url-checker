@@ -89,17 +89,18 @@ describe('JobsRepository', () => {
         expect(job.status).toBe(JobStatus.cancelled);
     });
 
-    it('markInProgress помечает Job in_progress и устанавливает startedAt для всех URL', () => {
+    it('markInProgress помечает Job in_progress и устанавливает startedAt для всех URL и возвращает startedAt', () => {
         const urls = ['https://example1.com', 'https://example2.com'];
         const jobId = repository.create(urls);
 
-        repository.markInProgress(jobId);
+        const startedAt = repository.markInProgress(jobId);
 
         const job = repository.findById(jobId)!;
         expect(job.status).toBe(JobStatus.inProgress);
         job.urlChecks.forEach((check) => {
             expect(check.startedAt).toBeInstanceOf(Date);
         });
+        expect(startedAt).toBeInstanceOf(Date);
     });
 
     it('markUrlCheckSuccess помечает UrlCheck как success и устанавливает статистику', () => {

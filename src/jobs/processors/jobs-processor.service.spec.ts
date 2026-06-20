@@ -11,13 +11,15 @@ describe('JobsProcessor', () => {
     let repository: jest.Mocked<Omit<JobsRepository, 'store'>>;
     let urlChecker: jest.Mocked<UrlCheckerService>;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         repository = {
             create: jest.fn(),
             getList: jest.fn(),
             findById: jest.fn(),
             getUrlChecksByJobId: jest.fn(),
             setStatus: jest.fn(),
+            markInProgress: jest.fn(),
+            markUrlCheckSuccess: jest.fn(),
         };
 
         urlChecker = {
@@ -41,13 +43,16 @@ describe('JobsProcessor', () => {
         processor = module.get<JobsProcessor>(JobsProcessor);
     });
 
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('должен быть определен', () => {
         expect(processor).toBeDefined();
     });
 
     it('process должен переводить Job в inProgress перед выполнением запросов', async () => {
         const jobId = 'job-1';
-
         repository.findById.mockReturnValue({
             id: jobId,
             status: JobStatus.pending,
@@ -58,12 +63,11 @@ describe('JobsProcessor', () => {
 
         await processor.process(jobId);
 
-        expect(repository.setStatus).toHaveBeenCalledWith(jobId, JobStatus.inProgress);
+        expect(repository.markInProgress).toHaveBeenCalledWith(jobId);
     });
 
     it('process должен выполнять HEAD-запрос для каждого URL', async () => {
         const jobId: JobId = 'job-1';
-
         repository.findById.mockReturnValue({
             id: jobId,
             status: JobStatus.pending,
@@ -81,6 +85,7 @@ describe('JobsProcessor', () => {
             ],
         });
 
+        repository.markInProgress.mockReturnValue(new Date());
         urlChecker.check.mockResolvedValue(200);
 
         await processor.process(jobId);
@@ -88,6 +93,38 @@ describe('JobsProcessor', () => {
         expect(urlChecker.check).toHaveBeenCalledTimes(2);
         expect(urlChecker.check).toHaveBeenNthCalledWith(1, 'https://example1.com');
         expect(urlChecker.check).toHaveBeenNthCalledWith(2, 'https://example2.com');
+    });
+
+    it('process должен помечать sucсess UrlCheck после успешного HEAD-запроса и устанавливать статистику', async () => {
+        const jobId: JobId = 'job-1';
+        const url = 'https://example1.com';
+
+        repository.findById.mockReturnValue({
+            id: jobId,
+            status: JobStatus.pending,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            urlChecks: [
+                {
+                    url,
+                    status: UrlCheckStatus.pending,
+                },
+            ],
+        });
+
+        repository.markInProgress.mockReturnValue(new Date());
+        urlChecker.check.mockResolvedValue(200);
+
+        await processor.process(jobId);
+
+        expect(repository.markUrlCheckSuccess).toHaveBeenCalledTimes(1);
+        expect(repository.markUrlCheckSuccess).toHaveBeenCalledWith(jobId, url, expect.any(Object));
+
+        const result = repository.markUrlCheckSuccess.mock.calls[0][2];
+
+        expect(result.httpCode).toBe(200);
+        expect(result.endedAt).toBeInstanceOf(Date);
+        expect(result.duration).toBeGreaterThanOrEqual(0);
     });
 
     it('process должен завершать Job', async () => {

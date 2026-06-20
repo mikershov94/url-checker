@@ -18,10 +18,25 @@ export class JobsProcessor {
             return;
         }
 
-        this.repository.setStatus(job.id, JobStatus.inProgress);
+        const startedAt = this.repository.markInProgress(job.id);
 
-        await Promise.all(job.urlChecks.map((check) => this.urlChecker.check(check.url)));
+        await Promise.all(
+            job.urlChecks.map((check) => this.processUrl(job.id, check.url, startedAt)),
+        );
 
         this.repository.setStatus(job.id, JobStatus.completed);
+    }
+
+    private async processUrl(jobId: JobId, url: string, startedAt: Date): Promise<void> {
+        const httpCode = await this.urlChecker.check(url);
+
+        const now = new Date();
+        const duration = now.getTime() - startedAt.getTime();
+
+        this.repository.markUrlCheckSuccess(jobId, url, {
+            httpCode,
+            endedAt: now,
+            duration,
+        });
     }
 }
