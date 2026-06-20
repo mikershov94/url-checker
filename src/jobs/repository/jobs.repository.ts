@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Job, JobId, UrlCheck } from '../entities/job.entity';
 import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckStatus } from '../consts/url-check-status.const';
+import { UrlCheckStats } from '../interfaces/url-check-stats.interface';
 
 @Injectable()
 export class JobsRepository {
@@ -60,6 +61,46 @@ export class JobsRepository {
             ...job,
             status,
             updatedAt: new Date(),
+        });
+    }
+
+    public markInProgress(id: JobId): void {
+        const job = this.store.get(id);
+        if (!job) {
+            return;
+        }
+
+        this.store.set(id, {
+            ...job,
+            status: JobStatus.inProgress,
+            updatedAt: new Date(),
+            urlChecks: job.urlChecks.map((check) => ({ ...check, startedAt: new Date() })),
+        });
+    }
+
+    public markUrlCheckSuccess(id: JobId, url: string, stats: UrlCheckStats): void {
+        const job = this.store.get(id);
+        if (!job) {
+            return;
+        }
+
+        this.store.set(id, {
+            ...job,
+            status: JobStatus.inProgress,
+            updatedAt: new Date(),
+            urlChecks: job.urlChecks.map((check) => {
+                if (check.url === url) {
+                    return {
+                        ...check,
+                        status: UrlCheckStatus.success,
+                        httpCode: stats.httpCode,
+                        endedAt: stats.endedAt,
+                        duration: stats.duration,
+                    };
+                }
+
+                return check;
+            }),
         });
     }
 }

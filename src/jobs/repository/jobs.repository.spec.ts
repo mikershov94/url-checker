@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JobsRepository } from './jobs.repository';
 import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckStatus } from '../consts/url-check-status.const';
+import { HttpStatus } from '@nestjs/common';
 
 describe('JobsRepository', () => {
     let repository: JobsRepository;
@@ -86,5 +87,38 @@ describe('JobsRepository', () => {
         repository.setStatus(jobId, JobStatus.cancelled);
         job = repository.findById(jobId)!;
         expect(job.status).toBe(JobStatus.cancelled);
+    });
+
+    it('markInProgress помечает Job in_progress и устанавливает startedAt для всех URL', () => {
+        const urls = ['https://example1.com', 'https://example2.com'];
+        const jobId = repository.create(urls);
+
+        repository.markInProgress(jobId);
+
+        const job = repository.findById(jobId)!;
+        expect(job.status).toBe(JobStatus.inProgress);
+        job.urlChecks.forEach((check) => {
+            expect(check.startedAt).toBeInstanceOf(Date);
+        });
+    });
+
+    it('markUrlCheckSuccess помечает UrlCheck как success и устанавливает статистику', () => {
+        const urls = ['https://example1.com', 'https://example2.com'];
+        const jobId = repository.create(urls);
+
+        repository.markUrlCheckSuccess(jobId, 'https://example2.com', {
+            httpCode: HttpStatus.OK,
+            endedAt: new Date(),
+            duration: 2,
+        });
+
+        const job = repository.findById(jobId)!;
+        job.urlChecks.forEach((check) => {
+            if (check.url === 'https://example2.com') {
+                expect(check.status).toBe(UrlCheckStatus.success);
+                expect(check.endedAt).toBeInstanceOf(Date);
+                expect(check.duration).toBeGreaterThan(0);
+            }
+        });
     });
 });
