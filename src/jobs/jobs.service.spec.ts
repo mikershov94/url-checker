@@ -104,6 +104,29 @@ describe('JobsService', () => {
         expect(result).toEqual(serviceFixtures);
     });
 
+    it('getJob вызывает метод репозитория и возвращает Job по переданному id', () => {
+        const now = new Date();
+        const jobId = 'job-1';
+
+        const fixture: Job = {
+            id: jobId,
+            status: JobStatus.pending,
+            createdAt: now,
+            updatedAt: now,
+            urlChecks: [
+                { url: 'https://example1.com', status: UrlCheckStatus.pending },
+                { url: 'https://example2.com', status: UrlCheckStatus.error },
+            ],
+        };
+
+        repository.findById.mockReturnValue(fixture);
+
+        const result = service.getJob(jobId);
+
+        expect(repository.findById).toHaveBeenCalledWith(jobId);
+        expect(result).toEqual(fixture);
+    });
+
     it('getUrlChecks должен вызывать метод репозитория и возвращать список', () => {
         const jobId: JobId = 'job-1';
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JobsRepository } from './repository/jobs.repository';
-import { JobId, UrlCheck } from './entities/job.entity';
+import { Job, JobId, UrlCheck } from './entities/job.entity';
 import { JobInfo } from './interfaces/job-info.interface';
 import { UrlCheckStatus } from './consts/url-check-status.const';
 
@@ -36,6 +36,10 @@ export class JobsService {
                 errorCount,
             };
         });
+    }
+
+    getJob(id: JobId): Job {
+        return this.repository.findById(id)!;
     }
 
     getUrlChecks(jobId: string): UrlCheck[] {

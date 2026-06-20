@@ -5,9 +5,9 @@ import { CreateJobResponseDto } from './dto/create-job-response.dto';
 import { CreateJobRequestDto } from './dto/create-job-request.dto';
 import { GetJobsResponseDto } from './dto/get-jobs-response.dto';
 import { JobStatus } from './consts/job-status.const';
-import { GetUrlChecksInfoDto } from './dto/get-url-checks-info.dto';
 import { UrlCheckStatus } from './consts/url-check-status.const';
 import { JobId } from './entities/job.entity';
+import { GetJobDetailsDto } from './dto/get-job-details.dto';
 
 describe('JobsController', () => {
     let controller: JobsController;
@@ -19,6 +19,7 @@ describe('JobsController', () => {
             getJobsList: jest.fn(),
             getUrlChecks: jest.fn(),
             cancelJob: jest.fn(),
+            getJob: jest.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -85,28 +86,35 @@ describe('JobsController', () => {
         expect(result).toEqual(expectedResponse);
     });
 
-    it('getUrlChecks должен вызывать метод сервиса и возвращать ожидаемый ответ', () => {
-        const jobId: JobId = '123';
-        const expectedResponse: GetUrlChecksInfoDto[] = [
-            {
-                url: 'https://example1.com',
-                status: UrlCheckStatus.pending,
-            },
-            {
-                url: 'https://example2.com',
-                status: UrlCheckStatus.success,
-                httpCode: 200,
-                startedAt: new Date(),
-                endedAt: new Date(),
-                duration: 150,
-            },
-        ];
+    it('getJobDetails должен вызывать метод сервиса и возвращать ожидаемый ответ', () => {
+        const jobId: JobId = 'job-1';
+        const expectedResponse: GetJobDetailsDto = {
+            id: jobId,
+            status: JobStatus.inProgress,
+            createdAt: new Date('2026-06-20T10:00:00.000Z'),
+            updatedAt: new Date('2026-06-20T10:01:00.000Z'),
 
-        service.getUrlChecks.mockReturnValue(expectedResponse);
+            urlChecks: [
+                {
+                    url: 'https://example1.com',
+                    status: UrlCheckStatus.pending,
+                },
+                {
+                    url: 'https://example2.com',
+                    status: UrlCheckStatus.success,
+                    httpCode: 200,
+                    startedAt: new Date('2026-06-20T10:00:10.000Z'),
+                    endedAt: new Date('2026-06-20T10:00:11.000Z'),
+                    duration: 150,
+                },
+            ],
+        };
 
-        const result = controller.getUrlChecks(jobId);
+        service.getJob.mockReturnValue(expectedResponse);
 
-        expect(service.getUrlChecks).toHaveBeenCalledWith(jobId);
+        const result = controller.getJobDetails(jobId);
+
+        expect(service.getJob).toHaveBeenCalledWith(jobId);
         expect(result).toEqual(expectedResponse);
     });
 
