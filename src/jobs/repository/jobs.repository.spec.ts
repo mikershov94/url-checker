@@ -70,4 +70,15 @@ describe('JobsRepository', () => {
             },
         ]);
     });
+
+    it('markCancelled помечает Job c переданным id как cancelled', () => {
+        const urls = ['https://example1.com', 'https://example2.com'];
+        const jobId = repository.create(urls);
+
+        repository.markCancelled(jobId);
+
+        const job = repository.findById(jobId)!;
+
+        expect(job.status).toBe(JobStatus.cancelled);
+    });
 });

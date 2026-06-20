@@ -34,7 +34,7 @@ export class JobsRepository {
         return jobId;
     }
 
-    public findById(id?: string): Job | undefined {
+    public findById(id?: JobId): Job | undefined {
         if (!id) {
             return undefined;
         }
@@ -46,9 +46,21 @@ export class JobsRepository {
         return [...this.store.values()];
     }
 
-    public getUrlChecksByJobId(id: string): UrlCheck[] {
+    public getUrlChecksByJobId(id: JobId): UrlCheck[] {
         return this.findById(id)!.urlChecks;
     }
 
-    public delete() {}
+    public markCancelled(id: JobId): void {
+        const job = this.store.get(id);
+
+        if (!job) {
+            return;
+        }
+
+        this.store.set(id, {
+            ...job,
+            status: JobStatus.cancelled,
+            updatedAt: new Date(),
+        });
+    }
 }
