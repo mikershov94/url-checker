@@ -111,6 +111,28 @@ describe('JobsController (e2e)', () => {
         expect(returnedUrls).toEqual(urls);
     });
 
+    it('/jobs/:id (DELETE) помечает Job как cancelled и прекращает обработку URL', async () => {
+        const server = app.getHttpServer() as Server;
+
+        const { body } = await request(server)
+            .post('/jobs')
+            .send({
+                urls: ['https://job1.com', 'https://job2.com'],
+            })
+            .expect(201);
+
+        const { jobId } = body as CreateJobResponseDto;
+
+        await request(server).delete(`/jobs/${jobId}`).expect(200);
+
+        const { body: getBody } = await request(server).get(`/jobs/${jobId}`).expect(200);
+
+        const jobList = getBody as GetJobsResponseDto[];
+        const job = jobList.find((job) => job.id === jobId)!;
+
+        expect(job.status).toBe(JobStatus.cancelled);
+    });
+
     afterEach(async () => {
         await app.close();
     });
