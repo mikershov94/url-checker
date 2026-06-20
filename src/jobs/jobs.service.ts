@@ -41,4 +41,8 @@ export class JobsService {
     getUrlChecks(jobId: string): UrlCheck[] {
         return this.repository.getUrlChecksByJobId(jobId);
     }
+
+    cancelJob(id: JobId): void {
+        this.repository.markCancelled(id);
+    }
 }

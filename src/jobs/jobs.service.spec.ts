@@ -8,7 +8,7 @@ import { JobInfo } from './interfaces/job-info.interface';
 
 describe('JobsService', () => {
     let service: JobsService;
-    let repository: jest.Mocked<Omit<JobsRepository, 'delete'>>;
+    let repository: jest.Mocked<Omit<JobsRepository, 'store'>>;
 
     beforeAll(async () => {
         repository = {
@@ -16,6 +16,7 @@ describe('JobsService', () => {
             getList: jest.fn(),
             findById: jest.fn(),
             getUrlChecksByJobId: jest.fn(),
+            markCancelled: jest.fn(),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -128,5 +129,13 @@ describe('JobsService', () => {
         expect(repository.getUrlChecksByJobId).toHaveBeenCalledWith(jobId);
         expect(result).toBe(urlChecks);
         expect(result).toHaveLength(2);
+    });
+
+    it('cancelJob вызывает метод репозитория, чтобы пометить Job как cancelled', () => {
+        const jobId: JobId = 'job-1';
+
+        service.cancelJob(jobId);
+
+        expect(repository.markCancelled).toHaveBeenCalledWith(jobId);
     });
 });
