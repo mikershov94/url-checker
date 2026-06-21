@@ -3,6 +3,7 @@ import { JobsRepository } from './jobs.repository';
 import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckStatus } from '../consts/url-check-status.const';
 import { HttpStatus } from '@nestjs/common';
+import { UrlCheckErrorMessage } from '../consts/url-check-errors.const';
 
 describe('JobsRepository', () => {
     let repository: JobsRepository;
@@ -115,6 +116,24 @@ describe('JobsRepository', () => {
                 expect(check.status).toBe(UrlCheckStatus.success);
                 expect(check.endedAt).toBeInstanceOf(Date);
                 expect(check.duration).toBeGreaterThan(0);
+            }
+        });
+    });
+
+    it('markUrlCheckError помечает UrlCheck как error и устанавливает errorMessage', () => {
+        const urls = ['https://example1.com', 'https://example2.com'];
+        const jobId = repository.create(urls);
+
+        repository.markUrlCheckError(jobId, 'https://example2.com', {
+            httpCode: HttpStatus.NOT_FOUND,
+            message: UrlCheckErrorMessage.NOT_FOUND,
+        });
+
+        const job = repository.findById(jobId);
+        job.urlChecks.forEach((check) => {
+            if (check.url === 'https://example2.com') {
+                expect(check.status).toBe(UrlCheckStatus.error);
+                expect(check.errorMessage).toBe(UrlCheckErrorMessage.NOT_FOUND);
             }
         });
     });

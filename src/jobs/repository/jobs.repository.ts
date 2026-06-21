@@ -56,10 +56,7 @@ export class JobsRepository {
     }
 
     public setStatus(id: JobId, status: JobStatus): void {
-        const job = this.store.get(id);
-        if (!job) {
-            return;
-        }
+        const job = this.findById(id);
 
         this.store.set(id, {
             ...job,
@@ -69,10 +66,7 @@ export class JobsRepository {
     }
 
     public markInProgress(id: JobId): Date {
-        const job = this.store.get(id);
-        if (!job) {
-            throw new Error(RepositoryErrors.JOB_NOT_FOUND);
-        }
+        const job = this.findById(id);
 
         const now = new Date();
         this.store.set(id, {
@@ -86,14 +80,10 @@ export class JobsRepository {
     }
 
     public markUrlCheckSuccess(id: JobId, url: string, stats: UrlCheckStats): void {
-        const job = this.store.get(id);
-        if (!job) {
-            return;
-        }
+        const job = this.findById(id);
 
         this.store.set(id, {
             ...job,
-            status: JobStatus.inProgress,
             updatedAt: new Date(),
             urlChecks: job.urlChecks.map((check) => {
                 if (check.url === url) {
@@ -111,5 +101,22 @@ export class JobsRepository {
         });
     }
 
-    public markUrlCheckError(id: JobId, url: string, urlCheckError: UrlCheckError) {}
+    public markUrlCheckError(id: JobId, url: string, urlCheckError: UrlCheckError): void {
+        const job = this.findById(id);
+        this.store.set(id, {
+            ...job,
+            updatedAt: new Date(),
+            urlChecks: job.urlChecks.map((check) => {
+                if (check.url === url) {
+                    return {
+                        ...check,
+                        status: UrlCheckStatus.error,
+                        httpCode: urlCheckError.httpCode,
+                        errorMessage: urlCheckError.message,
+                    };
+                }
+                return check;
+            }),
+        });
+    }
 }
