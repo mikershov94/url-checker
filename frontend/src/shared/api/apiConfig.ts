@@ -1,1 +1,10 @@
-export const API_BASE_URL = 'http://localhost:3000/api';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const rtkApi = createApi({
+    reducerPath: 'api',
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'http://localhost:3000/api',
+    }),
+    tagTypes: ['Jobs', 'JobDetails'],
+    endpoints: () => ({}),
+});

@@ -1,5 +1,3 @@
-export { createJob } from './api/createJobApi';
-
 export {
     createJobReducer,
     addUrl,

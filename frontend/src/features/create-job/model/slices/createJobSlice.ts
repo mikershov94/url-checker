@@ -1,7 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { JobId } from '@entities/job';
-import { createJob } from '../../api/createJobApi';
-import { apiErrors } from '@shared';
 
 export interface CreateJobState {
     urls: string[];
@@ -41,26 +39,12 @@ const createJobSlice = createSlice({
             state.error = null;
             state.createdJobId = null;
         },
-    },
-    extraReducers: (builder) => {
-        builder
-            .addCase(createJob.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-                state.createdJobId = null;
-            })
-            .addCase(createJob.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.createdJobId = action.payload.jobId;
-                state.urls = [''];
-            })
-            .addCase(createJob.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.error.message ?? apiErrors.DEFAULT;
-            });
+        setError(state, action: PayloadAction<string | null>) {
+            state.error = action.payload;
+        },
     },
 });
 
-export const { addUrl, removeUrl, changeUrl, resetForm } = createJobSlice.actions;
+export const { addUrl, removeUrl, changeUrl, resetForm, setError } = createJobSlice.actions;
 
 export const createJobReducer = createJobSlice.reducer;

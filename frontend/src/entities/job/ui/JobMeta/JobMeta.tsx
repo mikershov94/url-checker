@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { JobStatusBadge } from '@entities/job';
-import type { JobDetails } from '../../model/job-details';
+import type { JobDetails } from '../../model/types/job-details';
 
 import styles from './JobMeta.module.scss';
 

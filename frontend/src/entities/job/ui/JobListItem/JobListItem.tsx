@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Button } from '@shared';
-import { type JobInfo } from '../../model/job-info';
+import { type JobInfo } from '../../model/types/job-info';
 import { JobStatusBadge } from '../JobStatusBadge/JobStatusBadge';
 import { JobStatistics } from '../JobStatistics/JobStatistics';
 

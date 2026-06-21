@@ -1,4 +1,4 @@
-import type { UrlCheck } from '../../url-check';
+import type { UrlCheck } from '../../../url-check';
 import type { JobId } from './job-id';
 import type { JobStatus } from './job-status';
 

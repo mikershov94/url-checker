@@ -9,5 +9,5 @@ export { Table } from './ui/Table';
 export { TextArea } from './ui/TextArea';
 export { TextInput } from './ui/TextInput';
 
-export { API_BASE_URL } from './api/apiConfig';
+export { rtkApi } from './api/apiConfig';
 export { apiErrors } from './api/apiErrors';

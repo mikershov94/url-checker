@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { Badge } from '@shared';
-import { JobStatus } from '../../model/job-status';
+import { JobStatus } from '../../model/types/job-status';
 
 interface JobStatusBadgeProps {
     status: JobStatus;

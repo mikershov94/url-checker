@@ -1,27 +1,16 @@
 import type { AppDispatch } from '@app/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { Button, Card, ErrorMessage, TextInput } from '@shared';
-import { createJob } from '../../api/createJobApi';
-import { getCreateJobState } from '../../model/selectors';
+import type { FC } from 'react';
+import { apiErrors, Button, Card, ErrorMessage, TextInput } from '@shared';
 import { addUrl, changeUrl, removeUrl } from '../../model/slices/createJobSlice';
 
 import styles from './CreateJobForm.module.scss';
-import type { FC } from 'react';
+import { useCreateJobForm } from '@features/create-job/model/hooks/useCreateJobForm';
+import { useDispatch } from 'react-redux';
 
 export const CreateJobForm: FC = () => {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { urls, isLoading, error } = useSelector(getCreateJobState);
-
-    const handleSubmit = () => {
-        const filteredUrls = urls.map((url) => url.trim()).filter(Boolean);
-
-        if (filteredUrls.length === 0) {
-            return;
-        }
-
-        void dispatch(createJob(filteredUrls));
-    };
+    const { urls, error, isLoading, handleSubmit } = useCreateJobForm();
 
     return (
         <Card title="Новое задание">
@@ -64,7 +53,7 @@ export const CreateJobForm: FC = () => {
                 </Button>
             </div>
 
-            {error && <ErrorMessage>{error}</ErrorMessage>}
+            {error && <ErrorMessage>{apiErrors.CREATE_JOB_ERROR}</ErrorMessage>}
         </Card>
     );
 };

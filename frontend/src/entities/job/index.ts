@@ -1,7 +1,17 @@
-export type { JobInfo } from './model/job-info';
-export { JobStatus } from './model/job-status';
-export type { JobDetails } from './model/job-details';
-export type { JobId } from './model/job-id';
+export type { JobInfo } from './model/types/job-info';
+export { JobStatus } from './model/types/job-status';
+export type { JobDetails } from './model/types/job-details';
+export type { JobId } from './model/types/job-id';
+
+export { jobsReducer } from './model/slices/jobsSlice';
+export { selectJob } from './model/slices/jobsSlice';
+
+export {
+    useGetJobsQuery,
+    useGetJobDetailsQuery,
+    useCreateJobMutation,
+    useCancelJobMutation,
+} from './api';
 
 export { JobStatusBadge } from './ui/JobStatusBadge/JobStatusBadge';
 export { JobStatistics } from './ui/JobStatistics/JobStatistics';
