@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@app/store';
 
 import { JobList } from '@widgets/JobList';
-import { JobDetailsPanel } from '@widgets/JobDetailsPanel';
+import { JobDetailsPanel } from '@entities/job';
 import { selectJob, useGetJobsQuery } from '@entities/job';
 import { CreateJobForm } from '@features/create-job';
 
