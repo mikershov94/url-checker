@@ -1,4 +1,8 @@
 import type { Preview } from '@storybook/react-vite';
+import { MantineProvider } from '@mantine/core';
+
+// @ts-ignore
+import '@mantine/core/styles.css';
 
 const preview: Preview = {
     parameters: {
@@ -16,6 +20,13 @@ const preview: Preview = {
             test: 'todo',
         },
     },
+    decorators: [
+        (Story) => (
+            <MantineProvider>
+                <Story />
+            </MantineProvider>
+        ),
+    ],
 };
 
 export default preview;
