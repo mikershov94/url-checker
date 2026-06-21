@@ -6,8 +6,9 @@ import { getCreateJobState } from '../../model/selectors';
 import { addUrl, changeUrl, removeUrl } from '../../model/slices/createJobSlice';
 
 import styles from './CreateJobForm.module.scss';
+import type { FC } from 'react';
 
-export function CreateJobForm() {
+export const CreateJobForm: FC = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     const { urls, isLoading, error } = useSelector(getCreateJobState);
@@ -66,4 +67,4 @@ export function CreateJobForm() {
             {error && <ErrorMessage>{error}</ErrorMessage>}
         </Card>
     );
-}
+};

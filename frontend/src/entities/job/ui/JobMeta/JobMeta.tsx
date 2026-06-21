@@ -1,13 +1,14 @@
+import type { FC } from 'react';
 import { JobStatusBadge } from '@entities/job';
 import type { JobDetails } from '../../model/job-details';
 
 import styles from './JobMeta.module.scss';
 
-interface Props {
+interface JobMetaProps {
     job: JobDetails;
 }
 
-export const JobMeta = ({ job }: Props) => {
+export const JobMeta: FC<JobMetaProps> = ({ job }) => {
     return (
         <div className={styles.root}>
             <div>

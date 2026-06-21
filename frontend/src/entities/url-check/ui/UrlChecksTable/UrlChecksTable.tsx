@@ -1,12 +1,13 @@
+import type { FC } from 'react';
 import { Table, EmptyState } from '@shared';
 import type { UrlCheck } from '../../model/url-check';
 import { UrlCheckStatusBadge } from '../UrlCheckStatusBadge/UrlCheckStatusBadge';
 
-interface Props {
+interface UrlChecksTableProps {
     checks: UrlCheck[];
 }
 
-export const UrlChecksTable = ({ checks }: Props) => {
+export const UrlChecksTable: FC<UrlChecksTableProps> = ({ checks }) => {
     if (checks.length === 0) {
         return <EmptyState title="URL-проверок нет" />;
     }

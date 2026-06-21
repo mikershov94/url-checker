@@ -1,10 +1,10 @@
-import { Badge as MantineBadge, type BadgeProps } from '@mantine/core';
+import { Badge as MantineBadge, type BadgeProps as MantineBadgeProps } from '@mantine/core';
 import type { FC, ReactNode } from 'react';
 
-interface Props extends BadgeProps {
+interface BadgeProps extends MantineBadgeProps {
     children: ReactNode;
 }
 
-export const Badge: FC<Props> = ({ children, ...props }) => {
+export const Badge: FC<BadgeProps> = ({ children, ...props }) => {
     return <MantineBadge {...props}>{children}</MantineBadge>;
 };

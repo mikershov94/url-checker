@@ -1,7 +1,8 @@
 import { Badge } from '@shared';
 import { UrlCheckStatus } from '../../model/url-check-status';
+import type { FC } from 'react';
 
-interface Props {
+interface UrlCheckStatusBadgeProps {
     status: UrlCheckStatus;
 }
 
@@ -13,7 +14,7 @@ const statusColorMap: Record<UrlCheckStatus, string> = {
     [UrlCheckStatus.cancelled]: 'gray',
 };
 
-export const UrlCheckStatusBadge = ({ status }: Props) => {
+export const UrlCheckStatusBadge: FC<UrlCheckStatusBadgeProps> = ({ status }) => {
     return (
         <Badge color={statusColorMap[status]} variant="light">
             {status}

@@ -1,3 +1,4 @@
+import type { FC } from 'react';
 import { Badge } from '@shared';
 import { JobStatus } from '../../model/job-status';
 
@@ -13,7 +14,7 @@ const statusColorMap: Record<JobStatus, string> = {
     [JobStatus.failed]: 'red',
 };
 
-export const JobStatusBadge = ({ status }: JobStatusBadgeProps) => {
+export const JobStatusBadge: FC<JobStatusBadgeProps> = ({ status }) => {
     return (
         <Badge color={statusColorMap[status]} variant="light">
             {status}

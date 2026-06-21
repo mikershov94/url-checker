@@ -1,11 +1,11 @@
-import { Table as MantineTable, type TableProps } from '@mantine/core';
+import { Table as MantineTable, type TableProps as MantineTableProps } from '@mantine/core';
 import type { FC, ReactNode } from 'react';
 
-interface Props extends TableProps {
+interface TableProps extends MantineTableProps {
     children: ReactNode;
 }
 
-type TableComponent = FC<Props> & {
+type TableComponent = FC<TableProps> & {
     Thead: typeof MantineTable.Thead;
     Tbody: typeof MantineTable.Tbody;
     Tr: typeof MantineTable.Tr;

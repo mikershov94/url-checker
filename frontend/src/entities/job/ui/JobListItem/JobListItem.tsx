@@ -1,5 +1,5 @@
+import type { FC } from 'react';
 import { Button } from '@shared';
-
 import { type JobInfo } from '../../model/job-info';
 import { JobStatusBadge } from '../JobStatusBadge/JobStatusBadge';
 import { JobStatistics } from '../JobStatistics/JobStatistics';
@@ -13,7 +13,12 @@ interface JobListItemProps {
     onCancel: (jobId: string) => void;
 }
 
-export const JobListItem = ({ job, isSelected = false, onSelect, onCancel }: JobListItemProps) => {
+export const JobListItem: FC<JobListItemProps> = ({
+    job,
+    isSelected = false,
+    onSelect,
+    onCancel,
+}) => {
     return (
         <div className={isSelected ? styles.selected : styles.root}>
             <div className={styles.header}>

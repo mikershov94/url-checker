@@ -1,3 +1,4 @@
+import type { FC } from 'react';
 import styles from './JobStatistics.module.scss';
 
 interface JobStatisticsProps {
@@ -6,7 +7,7 @@ interface JobStatisticsProps {
     errorCount: number;
 }
 
-export const JobStatistics = ({ urlCount, successCount, errorCount }: JobStatisticsProps) => {
+export const JobStatistics: FC<JobStatisticsProps> = ({ urlCount, successCount, errorCount }) => {
     return (
         <div className={styles.root}>
             <span>URL: {urlCount}</span>
