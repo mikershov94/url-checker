@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { CreateJobForm } from '@features/create-job';
 import { Card } from '@shared';
 
 import styles from './MainPage.module.scss';
@@ -8,7 +9,7 @@ export const MainPage: FC = () => {
         <div className={styles.container}>
             <div className={styles.column}>
                 <div className={styles.stack}>
-                    <Card title="Новое задание">Hell</Card>
+                    <CreateJobForm />
                     <Card title="Список заданий">Hello</Card>
                 </div>
             </div>
