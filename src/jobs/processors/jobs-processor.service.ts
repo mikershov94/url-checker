@@ -3,6 +3,8 @@ import { JobsRepository } from '../repository/jobs.repository';
 import { JobId } from '../entities/job.entity';
 import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckerService } from '../services/url-checker.service';
+import { isFailedCode } from '../helpers/is-failed-code.helper';
+import { generateHttpError } from '../helpers/generate-http-error.helper';
 
 @Injectable()
 export class JobsProcessor {
@@ -29,6 +31,15 @@ export class JobsProcessor {
 
     private async processUrl(jobId: JobId, url: string, startedAt: Date): Promise<void> {
         const httpCode = await this.urlChecker.check(url);
+
+        if (isFailedCode(httpCode)) {
+            const errorMessage = generateHttpError(httpCode);
+
+            this.repository.markUrlCheckError(jobId, url, {
+                httpCode,
+                message: errorMessage!,
+            });
+        }
 
         const now = new Date();
         const duration = now.getTime() - startedAt.getTime();

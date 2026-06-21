@@ -126,14 +126,14 @@ describe('JobsRepository', () => {
 
         repository.markUrlCheckError(jobId, 'https://example2.com', {
             httpCode: HttpStatus.NOT_FOUND,
-            message: UrlCheckErrorMessage.NOT_FOUND,
+            message: UrlCheckErrorMessage.CLIENT_ERROR,
         });
 
         const job = repository.findById(jobId);
         job.urlChecks.forEach((check) => {
             if (check.url === 'https://example2.com') {
                 expect(check.status).toBe(UrlCheckStatus.error);
-                expect(check.errorMessage).toBe(UrlCheckErrorMessage.NOT_FOUND);
+                expect(check.errorMessage).toBe(UrlCheckErrorMessage.CLIENT_ERROR);
             }
         });
     });

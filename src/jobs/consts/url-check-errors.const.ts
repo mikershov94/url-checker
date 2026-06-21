@@ -1,4 +1,5 @@
 export enum UrlCheckErrorMessage {
-    DEFAULT = 'Обработка остановлена: неизвестная ошибка',
-    NOT_FOUND = 'Ресурс не найден',
+    DEFAULT = 'Unknown error',
+    CLIENT_ERROR = 'Client error',
+    SERVER_ERROR = 'Server error',
 }

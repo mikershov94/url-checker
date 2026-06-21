@@ -20,6 +20,7 @@ describe('JobsProcessor', () => {
             setStatus: jest.fn(),
             markInProgress: jest.fn(),
             markUrlCheckSuccess: jest.fn(),
+            markUrlCheckError: jest.fn(),
         };
 
         urlChecker = {
@@ -125,6 +126,37 @@ describe('JobsProcessor', () => {
         expect(result.httpCode).toBe(200);
         expect(result.endedAt).toBeInstanceOf(Date);
         expect(result.duration).toBeGreaterThanOrEqual(0);
+    });
+
+    it('process должен помечать failed UrlCheck при неуспешных HTTP-кодах и устанавливать errorMessage', async () => {
+        const jobId: JobId = 'job-1';
+        const url = 'https://example1.com';
+
+        repository.findById.mockReturnValue({
+            id: jobId,
+            status: JobStatus.pending,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            urlChecks: [
+                {
+                    url,
+                    status: UrlCheckStatus.pending,
+                },
+            ],
+        });
+
+        repository.markInProgress.mockReturnValue(new Date());
+        urlChecker.check.mockResolvedValue(404);
+
+        await processor.process(jobId);
+
+        expect(repository.markUrlCheckError).toHaveBeenCalledTimes(1);
+        expect(repository.markUrlCheckError).toHaveBeenCalledWith(jobId, url, expect.any(Object));
+
+        const result = repository.markUrlCheckError.mock.calls[0][2];
+
+        expect(result.httpCode).toBe(404);
+        expect(result.message).toBeDefined();
     });
 
     it('process должен завершать Job', async () => {
