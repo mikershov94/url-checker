@@ -5,6 +5,7 @@ import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckStatus } from '../consts/url-check-status.const';
 import { UrlCheckStats } from '../interfaces/url-check-stats.interface';
 import { RepositoryErrors } from '../consts/repository-errors.const';
+import { UrlCheckError } from '../interfaces/url-check-error.interface';
 
 @Injectable()
 export class JobsRepository {
@@ -36,12 +37,14 @@ export class JobsRepository {
         return jobId;
     }
 
-    public findById(id?: JobId): Job | undefined {
-        if (!id) {
-            return undefined;
+    public findById(id: JobId): Job {
+        const job = this.store.get(id);
+
+        if (!job) {
+            throw new Error(RepositoryErrors.JOB_NOT_FOUND);
         }
 
-        return this.store.get(id);
+        return job;
     }
 
     public getList(): Job[] {
@@ -49,7 +52,7 @@ export class JobsRepository {
     }
 
     public getUrlChecksByJobId(id: JobId): UrlCheck[] {
-        return this.findById(id)!.urlChecks;
+        return this.findById(id).urlChecks;
     }
 
     public setStatus(id: JobId, status: JobStatus): void {
@@ -107,4 +110,6 @@ export class JobsRepository {
             }),
         });
     }
+
+    public markUrlCheckError(id: JobId, url: string, urlCheckError: UrlCheckError) {}
 }

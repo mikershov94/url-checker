@@ -19,22 +19,18 @@ describe('JobsRepository', () => {
         expect(repository).toBeDefined();
     });
 
-    it('findById должен возвращать undefined если jobId не передан', () => {
-        expect(repository.findById()).toBe(undefined);
-    });
-
     it('create должен создать Job в store и вернуть jobId', () => {
         const urls = ['https://example.com'];
 
         const jobId = repository.create(urls);
-        expect(repository.findById(jobId)!.id).toBe(jobId);
+        expect(repository.findById(jobId).id).toBe(jobId);
     });
 
     it('findById должен возвращать Job если jobId передан', () => {
         const urls = ['https://example.com'];
 
         const jobId = repository.create(urls);
-        expect(repository.findById(jobId)!.id).toBe(jobId);
+        expect(repository.findById(jobId).id).toBe(jobId);
     });
 
     it('getList должен возврщаться список Jobs с информацией', () => {
@@ -77,7 +73,7 @@ describe('JobsRepository', () => {
         const jobId = repository.create(urls);
 
         repository.setStatus(jobId, JobStatus.inProgress);
-        let job = repository.findById(jobId)!;
+        let job = repository.findById(jobId);
         expect(job.status).toBe(JobStatus.inProgress);
 
         repository.setStatus(jobId, JobStatus.completed);
@@ -95,7 +91,7 @@ describe('JobsRepository', () => {
 
         const startedAt = repository.markInProgress(jobId);
 
-        const job = repository.findById(jobId)!;
+        const job = repository.findById(jobId);
         expect(job.status).toBe(JobStatus.inProgress);
         job.urlChecks.forEach((check) => {
             expect(check.startedAt).toBeInstanceOf(Date);
@@ -113,7 +109,7 @@ describe('JobsRepository', () => {
             duration: 2,
         });
 
-        const job = repository.findById(jobId)!;
+        const job = repository.findById(jobId);
         job.urlChecks.forEach((check) => {
             if (check.url === 'https://example2.com') {
                 expect(check.status).toBe(UrlCheckStatus.success);
