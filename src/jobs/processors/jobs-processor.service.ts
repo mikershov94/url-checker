@@ -39,6 +39,8 @@ export class JobsProcessor {
                 httpCode,
                 message: errorMessage!,
             });
+
+            return;
         }
 
         const now = new Date();
