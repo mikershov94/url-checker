@@ -119,4 +119,21 @@ export class JobsRepository {
             }),
         });
     }
+
+    public markPendingUrlChecksCancelled(id: JobId, url: string): void {
+        const job = this.findById(id);
+        this.store.set(id, {
+            ...job,
+            updatedAt: new Date(),
+            urlChecks: job.urlChecks.map((check) => {
+                if (check.url === url && check.status === UrlCheckStatus.pending) {
+                    return {
+                        ...check,
+                        status: UrlCheckStatus.cancelled,
+                    };
+                }
+                return check;
+            }),
+        });
+    }
 }

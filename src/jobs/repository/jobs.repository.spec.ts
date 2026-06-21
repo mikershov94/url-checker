@@ -137,4 +137,30 @@ describe('JobsRepository', () => {
             }
         });
     });
+
+    it('markPendingUrlChecksCancelled помечает UrlCheck как Cancelled если стоит метка pending', () => {
+        const urls = ['https://example1.com', 'https://example2.com'];
+        const jobId = repository.create(urls);
+
+        repository.markUrlCheckSuccess(jobId, 'https://example1.com', {
+            httpCode: HttpStatus.OK,
+            endedAt: new Date(),
+            duration: 2,
+        });
+
+        repository.markPendingUrlChecksCancelled(jobId, 'https://example2.com');
+
+        const job = repository.findById(jobId);
+        job.urlChecks.forEach((check) => {
+            if (check.url === 'https://example1.com') {
+                expect(check.status).toBe(UrlCheckStatus.success);
+                expect(check.endedAt).toBeInstanceOf(Date);
+                expect(check.duration).toBeGreaterThan(0);
+            }
+
+            if (check.url === 'https://example2.com') {
+                expect(check.status).toBe(UrlCheckStatus.cancelled);
+            }
+        });
+    });
 });
