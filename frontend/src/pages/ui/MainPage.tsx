@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@app/store';
 
 import { JobList } from '@widgets/JobList';
-import { JobDetailsPanel } from '@entities/job';
-import { selectJob, useGetJobsQuery } from '@entities/job';
+import { JobDetailsPanel, useJobsList } from '@entities/job';
+import { selectJob } from '@entities/job';
 import { CreateJobForm } from '@features/create-job';
 
 import styles from './MainPage.module.scss';
@@ -14,7 +14,7 @@ export const MainPage: FC = () => {
 
     const selectedJobId = useSelector((state: RootState) => state.jobs.selectedJobId);
 
-    const { data: jobs = [], isLoading } = useGetJobsQuery();
+    const { data: jobs = [], isLoading } = useJobsList();
 
     return (
         <div className={styles.container}>
@@ -31,7 +31,7 @@ export const MainPage: FC = () => {
                 </div>
             </div>
             <div className={styles.column}>
-                <JobDetailsPanel />
+                <JobDetailsPanel jobs={jobs} />
             </div>
         </div>
     );

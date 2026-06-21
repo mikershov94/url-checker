@@ -10,6 +10,8 @@ interface CreateJobResponse {
     jobId: string;
 }
 
+export const POLLING_INTERVAL_MS = 1000;
+
 export const jobsApi = rtkApi.injectEndpoints({
     endpoints: (build) => ({
         getJobs: build.query<JobInfo[], void>({

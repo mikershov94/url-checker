@@ -11,7 +11,10 @@ export {
     useGetJobDetailsQuery,
     useCreateJobMutation,
     useCancelJobMutation,
+    POLLING_INTERVAL_MS,
 } from './api';
+
+export { useJobsList } from './model/hooks/useJobList';
 
 export { JobStatusBadge } from './ui/JobStatusBadge/JobStatusBadge';
 export { JobStatistics } from './ui/JobStatistics/JobStatistics';
