@@ -1,4 +1,4 @@
-import { UrlCheckErrors } from '../consts/url-check-errors.const';
+import { UrlCheckErrorMessage } from '../consts/url-check-errors.const';
 import { UrlCheckerService } from './url-checker.service';
 
 describe('UrlCheckerService', () => {
@@ -49,8 +49,10 @@ describe('UrlCheckerService', () => {
     });
 
     it('check должен выбрасывать ошибку сети', async () => {
-        fetchMock.mockRejectedValue(new Error(UrlCheckErrors.DEFAULT));
+        fetchMock.mockRejectedValue(new Error(UrlCheckErrorMessage.DEFAULT));
 
-        await expect(service.check('https://example.com')).rejects.toThrow(UrlCheckErrors.DEFAULT);
+        await expect(service.check('https://example.com')).rejects.toThrow(
+            UrlCheckErrorMessage.DEFAULT,
+        );
     });
 });
