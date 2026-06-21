@@ -138,7 +138,7 @@ describe('JobsRepository', () => {
         });
     });
 
-    it('markPendingUrlChecksCancelled помечает UrlCheck как Cancelled если стоит метка pending', () => {
+    it('markPendingUrlChecksCancelled помечает UrlChecks как Cancelled если стоит метка pending', () => {
         const urls = ['https://example1.com', 'https://example2.com'];
         const jobId = repository.create(urls);
 
@@ -148,7 +148,7 @@ describe('JobsRepository', () => {
             duration: 2,
         });
 
-        repository.markPendingUrlChecksCancelled(jobId, 'https://example2.com');
+        repository.markPendingUrlChecksCancelled(jobId);
 
         const job = repository.findById(jobId);
         job.urlChecks.forEach((check) => {

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JobsRepository } from '../repository/jobs.repository';
-import { JobId } from '../entities/job.entity';
+import { JobId, UrlCheck } from '../entities/job.entity';
 import { JobStatus } from '../consts/job-status.const';
 import { UrlCheckerService } from '../services/url-checker.service';
 import { isFailedCode } from '../helpers/is-failed-code.helper';
 import { generateHttpError } from '../helpers/generate-http-error.helper';
+import { UrlCheckErrorMessage } from '../consts/url-check-errors.const';
 
 @Injectable()
 export class JobsProcessor {
@@ -16,40 +17,57 @@ export class JobsProcessor {
     public async process(jobId: JobId): Promise<void> {
         const job = this.repository.findById(jobId);
 
-        if (!job) {
+        if (job.status === JobStatus.cancelled) {
+            this.repository.markPendingUrlChecksCancelled(job.id);
+
             return;
         }
 
-        const startedAt = this.repository.markInProgress(job.id);
+        this.repository.markInProgress(job.id);
 
-        await Promise.all(
-            job.urlChecks.map((check) => this.processUrl(job.id, check.url, startedAt)),
-        );
+        for (const urlCheck of job.urlChecks) {
+            const currentJob = this.repository.findById(jobId);
+
+            if (currentJob.status === JobStatus.cancelled) {
+                this.repository.markPendingUrlChecksCancelled(jobId);
+                return;
+            }
+
+            await this.processUrl(job.id, urlCheck, new Date());
+        }
 
         this.repository.setStatus(job.id, JobStatus.completed);
     }
 
-    private async processUrl(jobId: JobId, url: string, startedAt: Date): Promise<void> {
-        const httpCode = await this.urlChecker.check(url);
+    private async processUrl(jobId: JobId, urlCheck: UrlCheck, startedAt: Date): Promise<void> {
+        const url = urlCheck.url;
 
-        if (isFailedCode(httpCode)) {
-            const errorMessage = generateHttpError(httpCode);
+        try {
+            const httpCode = await this.urlChecker.check(url);
 
-            this.repository.markUrlCheckError(jobId, url, {
+            if (isFailedCode(httpCode)) {
+                const errorMessage = generateHttpError(httpCode);
+
+                this.repository.markUrlCheckError(jobId, url, {
+                    httpCode,
+                    message: errorMessage!,
+                });
+
+                return;
+            }
+
+            const now = new Date();
+            const duration = now.getTime() - startedAt.getTime();
+
+            this.repository.markUrlCheckSuccess(jobId, url, {
                 httpCode,
-                message: errorMessage!,
+                endedAt: now,
+                duration,
             });
-
-            return;
+        } catch {
+            this.repository.markUrlCheckError(jobId, url, {
+                message: UrlCheckErrorMessage.DEFAULT,
+            });
         }
-
-        const now = new Date();
-        const duration = now.getTime() - startedAt.getTime();
-
-        this.repository.markUrlCheckSuccess(jobId, url, {
-            httpCode,
-            endedAt: now,
-            duration,
-        });
     }
 }

@@ -2,9 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JobsProcessor } from './jobs-processor.service';
 import { JobsRepository } from '../repository/jobs.repository';
 import { JobStatus } from '../consts/job-status.const';
-import { JobId } from '../entities/job.entity';
+import { Job, JobId } from '../entities/job.entity';
 import { UrlCheckStatus } from '../consts/url-check-status.const';
 import { UrlCheckerService } from '../services/url-checker.service';
+import { UrlCheckErrorMessage } from '../consts/url-check-errors.const';
 
 describe('JobsProcessor', () => {
     let processor: JobsProcessor;
@@ -21,6 +22,7 @@ describe('JobsProcessor', () => {
             markInProgress: jest.fn(),
             markUrlCheckSuccess: jest.fn(),
             markUrlCheckError: jest.fn(),
+            markPendingUrlChecksCancelled: jest.fn(),
         };
 
         urlChecker = {
@@ -156,7 +158,37 @@ describe('JobsProcessor', () => {
         const result = repository.markUrlCheckError.mock.calls[0][2];
 
         expect(result.httpCode).toBe(404);
-        expect(result.message).toBeDefined();
+        expect(result.message).toBe(UrlCheckErrorMessage.CLIENT_ERROR);
+    });
+
+    it('process должен помечать failed UrlCheck при ошибках сети и устанавливать errorMessage', async () => {
+        const jobId: JobId = 'job-1';
+        const url = 'https://example1.com';
+
+        repository.findById.mockReturnValue({
+            id: jobId,
+            status: JobStatus.pending,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            urlChecks: [
+                {
+                    url,
+                    status: UrlCheckStatus.pending,
+                },
+            ],
+        });
+
+        repository.markInProgress.mockReturnValue(new Date());
+        urlChecker.check.mockRejectedValue('error');
+
+        await processor.process(jobId);
+
+        expect(repository.markUrlCheckError).toHaveBeenCalledTimes(1);
+        expect(repository.markUrlCheckError).toHaveBeenCalledWith(jobId, url, expect.any(Object));
+
+        const result = repository.markUrlCheckError.mock.calls[0][2];
+
+        expect(result.message).toBe(UrlCheckErrorMessage.DEFAULT);
     });
 
     it('process должен завершать Job', async () => {
@@ -173,5 +205,71 @@ describe('JobsProcessor', () => {
         await processor.process(jobId);
 
         expect(repository.setStatus).toHaveBeenCalledWith(jobId, JobStatus.completed);
+    });
+
+    it('process не должен обрабатывать URL, если Job уже cancelled', async () => {
+        const jobId: JobId = 'job-1';
+
+        repository.findById.mockReturnValue({
+            id: jobId,
+            status: JobStatus.cancelled,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            urlChecks: [
+                {
+                    url: 'https://example1.com',
+                    status: UrlCheckStatus.pending,
+                },
+            ],
+        });
+
+        await processor.process(jobId);
+
+        expect(urlChecker.check).not.toHaveBeenCalled();
+        expect(repository.markInProgress).not.toHaveBeenCalled();
+        expect(repository.markUrlCheckSuccess).not.toHaveBeenCalled();
+        expect(repository.markUrlCheckError).not.toHaveBeenCalled();
+        expect(repository.setStatus).not.toHaveBeenCalledWith(jobId, JobStatus.completed);
+    });
+
+    it('process должен прекращать обработку не начатых URL, если Job была отменена во время обработки', async () => {
+        const jobId: JobId = 'job-1';
+
+        const activeJob: Job = {
+            id: jobId,
+            status: JobStatus.pending,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            urlChecks: [
+                {
+                    url: 'https://example1.com',
+                    status: UrlCheckStatus.pending,
+                },
+                {
+                    url: 'https://example2.com',
+                    status: UrlCheckStatus.pending,
+                },
+            ],
+        };
+
+        const cancelledJob: Job = {
+            ...activeJob,
+            status: JobStatus.cancelled,
+        };
+
+        repository.findById
+            .mockReturnValueOnce(activeJob)
+            .mockReturnValueOnce(activeJob)
+            .mockReturnValueOnce(cancelledJob);
+        repository.markInProgress.mockReturnValue(new Date());
+        urlChecker.check.mockResolvedValue(200);
+
+        await processor.process(jobId);
+
+        expect(urlChecker.check).toHaveBeenCalledTimes(1);
+        expect(urlChecker.check).toHaveBeenCalledWith('https://example1.com');
+        expect(repository.markUrlCheckSuccess).toHaveBeenCalledTimes(1);
+        expect(repository.markPendingUrlChecksCancelled).toHaveBeenCalledWith(jobId);
+        expect(repository.setStatus).not.toHaveBeenCalledWith(jobId, JobStatus.completed);
     });
 });
