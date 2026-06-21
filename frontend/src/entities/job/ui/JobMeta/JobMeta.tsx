@@ -17,17 +17,17 @@ export const JobMeta: FC<JobMetaProps> = ({ job }) => {
             </div>
 
             <div>
-                <span className={styles.label}>Status:</span>
+                <span className={styles.label}>Статус:</span>
                 <JobStatusBadge status={job.status} />
             </div>
 
             <div>
-                <span className={styles.label}>Created:</span>
+                <span className={styles.label}>Создано:</span>
                 <span>{job.createdAt}</span>
             </div>
 
             <div>
-                <span className={styles.label}>Updated:</span>
+                <span className={styles.label}>Обновлено:</span>
                 <span>{job.updatedAt}</span>
             </div>
         </div>

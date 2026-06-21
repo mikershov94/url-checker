@@ -11,8 +11,8 @@ export const JobStatistics: FC<JobStatisticsProps> = ({ urlCount, successCount, 
     return (
         <div className={styles.root}>
             <span>URL: {urlCount}</span>
-            <span>OK: {successCount}</span>
-            <span>ERR: {errorCount}</span>
+            <span>Успешных: {successCount}</span>
+            <span>Ошибок: {errorCount}</span>
         </div>
     );
 };
