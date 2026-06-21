@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { JobList } from '@widgets/JobList';
+import { JobDetailsPanel } from '@widgets/JobDetailsPanel';
 import { CreateJobForm } from '@features/create-job';
-import { Card } from '@shared';
 
 import styles from './MainPage.module.scss';
 
@@ -20,9 +20,7 @@ export const MainPage: FC = () => {
                 </div>
             </div>
             <div className={styles.column}>
-                <Card className={styles.details} title="Детали задания">
-                    Hello
-                </Card>
+                <JobDetailsPanel />
             </div>
         </div>
     );

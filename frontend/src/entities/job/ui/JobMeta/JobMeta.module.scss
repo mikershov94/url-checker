@@ -1,0 +1,13 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.label {
+    display: inline-block;
+    min-width: 80px;
+    color: #666;
+    font-weight: 600;
+}
