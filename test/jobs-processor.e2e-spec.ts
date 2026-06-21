@@ -1,12 +1,14 @@
 import request from 'supertest';
 import type { Server } from 'node:http';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobsModule } from '../src/jobs/jobs.module';
 import { CreateJobResponseDto } from '../src/jobs/dto/create-job-response.dto';
 import { JobStatus } from '../src/jobs/consts/job-status.const';
 import { GetJobDetailsDto } from '../src/jobs/dto/get-job-details.dto';
 import { UrlCheckStatus } from '../src/jobs/consts/url-check-status.const';
+import { UrlCheckerService } from '../src/jobs/services/url-checker.service';
+import { DelayService } from '../src/jobs/services/delay.service';
 
 const MAX_ATTEMPTS = 20;
 const POLLING_INTERVAL_MS = 50;
@@ -15,9 +17,22 @@ describe('JobsProcessor (e2e)', () => {
     let app: INestApplication;
 
     beforeEach(async () => {
+        const urlCheckerMock = {
+            check: jest.fn().mockResolvedValue(HttpStatus.OK),
+        };
+
+        const delayServiceMock = {
+            wait: jest.fn().mockResolvedValue(undefined),
+        };
+
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [JobsModule],
-        }).compile();
+        })
+            .overrideProvider(UrlCheckerService)
+            .useValue(urlCheckerMock)
+            .overrideProvider(DelayService)
+            .useValue(delayServiceMock)
+            .compile();
 
         app = moduleFixture.createNestApplication();
         await app.init();

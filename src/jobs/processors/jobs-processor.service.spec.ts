@@ -25,6 +25,7 @@ describe('JobsProcessor', () => {
             markUrlCheckSuccess: jest.fn(),
             markUrlCheckError: jest.fn(),
             markPendingUrlChecksCancelled: jest.fn(),
+            markCancelled: jest.fn(),
         };
 
         urlChecker = {
